@@ -1,6 +1,6 @@
 import { PatientData, DiagnosisResponse } from './types';
 
-const PROXY_BASE_URL = 'https://irandvm.ir/proxy';
+const PROXY_BASE_URL = 'https://mine-gpt-alpha.vercel.app/proxy';
 
 export async function submitTestAnalysis(data: PatientData): Promise<DiagnosisResponse> {
   const prompt = `
