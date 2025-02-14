@@ -1,8 +1,10 @@
 import { PatientData, DiagnosisResponse } from './types';
 
-const PROXY_BASE_URL = 'https://mine-gpt-alpha.vercel.app/proxy';
+const PROXY_BASE_URL = 'https://irandvm.ir/proxy';
 
-export async function submitTestAnalysis(data: PatientData): Promise<DiagnosisResponse> {
+export async function submitTestAnalysis(
+  data: PatientData
+): Promise<DiagnosisResponse> {
   const prompt = `
 شما یک پزشک متخصص با تجربه بالا در تشخیص بیماری‌ها هستید. لطفاً بر اساس اطلاعات زیر، یک برنامه درمانی جامع ارائه دهید:
 
@@ -17,23 +19,12 @@ ${data.symptoms}
 ### سابقه پزشکی:
 ${data.medicalHistory || 'بدون سابقه خاص'}
 
-
-
 لطفاً پاسخ را به صورت ساختاریافته و با جزئیات کامل ارائه دهید.
 `.trim();
 
   try {
     const response = await fetch(
-      `${PROXY_BASE_URL}?${new URLSearchParams({
-        text: prompt
-      }).toString()}`,
-      {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        }
-      }
+      `${PROXY_BASE_URL}?${new URLSearchParams({ text: prompt }).toString()}`
     );
 
     if (!response.ok) {
@@ -42,15 +33,19 @@ ${data.medicalHistory || 'بدون سابقه خاص'}
 
     const responseData = await response.json();
 
-    if (!responseData.results) {
-      throw new Error('پاسخی از سرور دریافت نشد');
+    // بررسی ساختار پاسخ سرور
+    if (!responseData.ok || !responseData.answer) {
+      throw new Error(responseData.error || 'پاسخ نامعتبر از سرور');
     }
 
     return {
-      result: responseData.results,
-      message: responseData.results,
+      result: responseData.answer,
+      message: responseData.answer,
+      rawData: responseData // اضافه کردن داده خام برای دیباگ
     };
+
   } catch (error) {
+    console.error('جزئیات خطا:', error);
     throw new Error(
       error instanceof Error ? error.message : 'خطای ناشناخته در ارتباط با سرور'
     );
